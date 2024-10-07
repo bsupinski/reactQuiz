@@ -4,101 +4,80 @@ import "./index.css";
 const questions = [
   {
     question: "What type of fish is Nemo?",
-    answers: [
-      { text: "Lionfish", correct: false },
-      { text: "Clownfish", correct: true },
-      { text: "Goldfish", correct: false },
-      { text: "Tuna", correct: false },
-    ],
+    options: ["Lionfish", "Clownfish", "Goldfish", "Tuna"],
+    answer: "Clownfish",
   },
+
   {
     question: "What is the world's fastest bird?",
-    answers: [
-      { text: "Humming Bird", correct: false },
-      { text: "Peregrine Falcon", correct: true },
-      { text: "Ostrich", correct: false },
-      { text: "Road Runner", correct: false },
-    ],
+    options: ["Humming Bird", "Peregrine Falcon", "Ostrich", "Road Runner"],
+    answer: "Peregrine Falcon",
   },
   {
     question: "Which is the largest Planet in our Solar System?",
-    answers: [
-      { text: "Saturn", correct: false },
-      { text: "Mercury", correct: false },
-      { text: "Earth", correct: false },
-      { text: "Jupiter", correct: true },
-    ],
+    options: ["Saturn", "Mercury", "Earth", "Jupiter"],
+    answer: "Jupiter",
   },
 ];
 
+console.log(questions.length);
+
 export default function App() {
-  return (
-    <div className="container">
-      <Quiz />
-    </div>
-  );
+  return <Quiz />;
 }
 
 function Quiz() {
-  // State that will allow rendering next question.
-  const [currQuestion, setCurrQuestion] = useState(0);
-  // State that allows to set right answer, and disable option buttons. Gets passed and handled in Options
-  const [answered, setAnswered] = useState(false);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [selected, setSelected] = useState(false);
+  const [userGuess, setUserGuess] = useState(null);
+  let [score, setScore] = useState(0);
 
-  function handleCurrQuestion() {
-    setCurrQuestion((curr) => curr + 1);
+  async function handleOptionsClick(option) {
+    setSelected(true);
+    setUserGuess(option);
+    setScore((score) => score + 1);
   }
 
-  function handleAnswered() {
-    setAnswered((answered) => !answered);
+  function handleNextClick() {
+    setCurrentQuestion((curr) => curr + 1);
+    setSelected(false);
+    console.log(userGuess);
+    console.log(currentAnswer);
+    console.log(score);
   }
 
-  function handleClicked() {
-    console.log(answered);
+  const currentAnswer = questions[currentQuestion]?.answer;
 
-    if (!answered) return;
-    handleCurrQuestion();
-    handleAnswered();
-  }
-
-  return (
-    <div>
-      <h2>{questions[currQuestion].question}</h2>
-      <div className="answers">
-        {questions[currQuestion].answers.map((answer, i) => (
-          <Options
-            answer={answer}
-            answered={answered}
-            handleAnswered={handleAnswered}
+  return currentQuestion > questions.length - 1 ? (
+    <div>hello</div>
+  ) : (
+    <div className="quiz">
+      <h2>{questions[currentQuestion].question}</h2>
+      <div className="options__container">
+        {questions[currentQuestion].options.map((option, i) => (
+          <button
+            className={
+              option === currentAnswer && selected
+                ? "options right"
+                : option !== currentAnswer && option === userGuess
+                ? "options wrong"
+                : "options"
+            }
             key={i}
-          />
+            onClick={() => handleOptionsClick(option)}
+            disabled={selected && true}
+          >
+            {option}
+          </button>
         ))}
       </div>
-      <button className="next" onClick={handleClicked}>
+      <button
+        className="next"
+        onClick={handleNextClick}
+        disabled={!selected && true}
+      >
         Next
       </button>
     </div>
-  );
-}
-
-function Options({ answer, answered, handleAnswered }) {
-  // State to set class name based on right correct.
-  // const [selected, setSelected] = useState(false);
-
-  // function handleSelected() {
-  //   setSelected((selected) => !selected);
-  // }
-
-  function handleClick(e) {
-    console.log(answered);
-    handleAnswered();
-    console.log(answered);
-
-    if (!answer.correct && answered) e.target.classList.add("wrong");
-  }
-  return (
-    <button className={"btn"} disabled={answered && true} onClick={handleClick}>
-      {answer.text}
-    </button>
   );
 }
